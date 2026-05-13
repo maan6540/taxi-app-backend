@@ -20,7 +20,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
-      // allow tools like Postman or server-to-server requests
+      // allow Postman / server-to-server requests
       if (!origin) return callback(null, true);
 
       if (allowedOrigins.includes(origin)) {
@@ -35,9 +35,6 @@ app.use(
   })
 );
 
-// handle preflight requests
-app.options("*", cors());
-
 // middleware
 app.use(express.json());
 
@@ -47,6 +44,16 @@ app.use("/api", bookingDetailsRoutes);
 // test route
 app.get("/", (req, res) => {
   res.send("Server Running");
+});
+
+// ❌ REMOVED: app.options("*", cors()); (caused Render crash)
+
+// 404 handler (safe replacement for "*")
+app.use((req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found"
+  });
 });
 
 // PORT
