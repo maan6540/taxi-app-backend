@@ -18,8 +18,8 @@ export const registerUser = async (req, res) => {
       name,
       gender,
       email,
-      password,
-      role, // optional (defaults to user)
+      password, // plain password
+      role,
     });
 
     res.status(201).json({
@@ -36,7 +36,7 @@ export const registerUser = async (req, res) => {
 };
 
 // =====================
-// 🔑 LOGIN
+// 🔑 LOGIN (SIMPLE CHECK)
 // =====================
 export const loginUser = async (req, res) => {
   try {
@@ -48,9 +48,8 @@ export const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
-    const isMatch = await user.matchPassword(password);
-
-    if (!isMatch) {
+    // 🔥 SIMPLE PASSWORD CHECK (NO HASH)
+    if (user.password !== password) {
       return res.status(400).json({ message: "Invalid email or password" });
     }
 
@@ -59,7 +58,7 @@ export const loginUser = async (req, res) => {
       name: user.name,
       email: user.email,
       gender: user.gender,
-      role: user.role, // 🔥 ROLE SENT HERE
+      role: user.role,
       token: generateToken(user._id),
     });
   } catch (error) {
